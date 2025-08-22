@@ -60,12 +60,32 @@ void goToProfileManager()
     manageUsers.Click();
 }
 
-/*using (var package = new ExcelPackage(new FileInfo(excelPath)))
+using (var package = new ExcelPackage(new FileInfo(excelPath)))
 {
     var worksheet = package.Workbook.Worksheets[0];
-    Console.WriteLine(worksheet.FirstValueCell);
-}
-*/
+    int rowCount = worksheet.Dimension.Rows;
+    int colCount = worksheet.Dimension.Columns;
+    
+    //Map column names to indicies
+    var colMap = new Dictionary<string, int>();
+    for (int col = 1; col <= colCount; col++)
+    {
+        var colName = worksheet.Cells[1, col].Text.Trim();
+        colMap[colName] = col;
+    }
 
-Login();
+    for (int row = 2; row <= rowCount; row++)
+    {
+        string firstName = worksheet.Cells[row, colMap["First Name"]].Text;
+        string lastName = worksheet.Cells[row, colMap["Last Name"]].Text;
+        string employeeId = worksheet.Cells[row, colMap["Badge Number"]].Text;
+        int badgeNum = int.Parse(employeeId);
+        string department = worksheet.Cells[row, colMap["Department"]].Text;
+
+        Console.WriteLine($"Badge number for {firstName} is {badgeNum} ");
+
+}
+}
+
+
 Console.ReadLine();
