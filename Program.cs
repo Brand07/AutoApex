@@ -1,8 +1,12 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OfficeOpenXml;
+
+ExcelPackage.License.SetNonCommercialOrganization("My Noncommercial organization");
 
 DotNetEnv.Env.Load("C:\\repos\\AutoApex\\AutoApexImport\\.env");
 
+var excelPath = Environment.GetEnvironmentVariable("EXCEL_PATH");
 var userName = Environment.GetEnvironmentVariable("APEX_USERNAME");
 var password = Environment.GetEnvironmentVariable("APEX_PASSWORD");
 
@@ -13,6 +17,8 @@ void Login()
 {
     try
     {
+        //Maximize the window
+        driver.Manage().Window.Maximize();
         //Go to the Apex login page
         driver.Navigate().GoToUrl("https://apexconnectandgo.com");
         driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMilliseconds(500);
@@ -23,8 +29,7 @@ void Login()
         passwordField.SendKeys(password);
         //Login
         passwordField.Submit();
-        
-
+        goToProfileManager();
     }
     catch (Exception e)
     {
@@ -32,6 +37,25 @@ void Login()
         throw;
     }
 }
+
+//Method to navigate to the Profile Manager Page
+void goToProfileManager()
+{
+    var profileManager = driver.FindElement(By.CssSelector("#logout_left > a:nth-child(1)"));
+    Console.WriteLine("Navigating to the profile manager");
+    profileManager.Click();
+
+    var manageUsers = driver.FindElement(By.CssSelector("#pageBody > div.drawers-wrapper > ul > li:nth-child(1) > ul > li:nth-child(1) > a"));
+    Console.WriteLine("Clicking on 'Manage Users'");
+    manageUsers.Click();
+}
+
+/*using (var package = new ExcelPackage(new FileInfo(excelPath)))
+{
+    var worksheet = package.Workbook.Worksheets[0];
+    Console.WriteLine(worksheet.FirstValueCell);
+}
+*/
+
 Login();
 Console.ReadLine();
-
