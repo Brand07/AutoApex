@@ -57,3 +57,5 @@ nunit-*.xml
 /.idea/.idea.AutoApexImport/.idea/encodings.xml
 /.idea/.idea.AutoApexImport/.idea/projectSettingsUpdater.xml
 /.idea/.idea.AutoApexImport/.idea/workspace.xml
+
+.env
