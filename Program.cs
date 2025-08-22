@@ -63,9 +63,10 @@ namespace AutoApexImport
                     string lastName = worksheet.Cells[row, colMap["Last Name"]].Text;
                     string employeeId = worksheet.Cells[row, colMap["Badge Number"]].Text;
                     int badgeNum = int.Parse(employeeId);
+                    string department = worksheet.Cells[row, colMap["Department"]].Text;
 
                     Console.WriteLine("Searching for the badge association.");
-                    SearchBadge(firstName, lastName, badgeNum.ToString());
+                    SearchBadge(firstName, lastName, badgeNum.ToString(), department);
                 }
             }
         }
@@ -109,7 +110,7 @@ namespace AutoApexImport
             manageUsers.Click();
         }
 
-        static void EditProfile(string firstUserName, string lastUserName, string badgeNumber)
+        static void EditProfile(string firstUserName, string lastUserName, string badgeNumber, string department = "")
         {
             if (driver == null) throw new InvalidOperationException("Driver not initialized.");
             Console.WriteLine("Editing the profile");
@@ -130,7 +131,7 @@ namespace AutoApexImport
             saveButton.Click();
         }
 
-        static void DoesBadgeExist(string firstName, string lastName, string badgeNumber)
+        static void DoesBadgeExist(string firstName, string lastName, string badgeNumber, string departrment)
         {
             if (driver == null) throw new InvalidOperationException("Driver not initialized.");
             try
@@ -141,7 +142,7 @@ namespace AutoApexImport
                 var profileLink = badgeElement.FindElement(By.XPath("//*[@id=\"tr0\"]/td[1]/a"));
                 profileLink.Click();
                 //TODO Call method to edit the profile
-                EditProfile(firstName, lastName, badgeNumber);
+                EditProfile(firstName, lastName, badgeNumber, departrment);
             }
             catch (NoSuchElementException)
             {
@@ -150,7 +151,7 @@ namespace AutoApexImport
             }
         }
 
-        static void SearchBadge(string firstName, string lastName, string badgeNumber)
+        static void SearchBadge(string firstName, string lastName, string badgeNumber,string department)
         {
             if (driver == null) throw new InvalidOperationException("Driver not initialized.");
             var searchBox = driver.FindElement(By.Id("searchUsersText"));
@@ -161,7 +162,7 @@ namespace AutoApexImport
             searchButton.Click();
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMilliseconds(500);
             //Check if the badge exists
-            DoesBadgeExist(firstName, lastName, badgeNumber);
+            DoesBadgeExist(firstName, lastName, badgeNumber, department);
             //Clear the search box
             searchBox.Clear();
         }
