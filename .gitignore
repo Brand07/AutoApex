@@ -52,3 +52,8 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+/.idea/.idea.AutoApexImport/.idea/indexLayout.xml
+/.idea/.idea.AutoApexImport/.idea/vcs.xml
+/.idea/.idea.AutoApexImport/.idea/encodings.xml
+/.idea/.idea.AutoApexImport/.idea/projectSettingsUpdater.xml
+/.idea/.idea.AutoApexImport/.idea/workspace.xml
