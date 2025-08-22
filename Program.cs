@@ -2,16 +2,26 @@
 using OpenQA.Selenium.Chrome;
 using OfficeOpenXml;
 
+//Set the license for the library
 ExcelPackage.License.SetNonCommercialOrganization("My Noncommercial organization");
-
+//Load the env file
 DotNetEnv.Env.Load("C:\\repos\\AutoApex\\AutoApexImport\\.env");
 
 var excelPath = Environment.GetEnvironmentVariable("EXCEL_PATH");
 var userName = Environment.GetEnvironmentVariable("APEX_USERNAME");
 var password = Environment.GetEnvironmentVariable("APEX_PASSWORD");
 
-// Load the selenium web driver
-IWebDriver driver = new ChromeDriver();
+
+var options = new ChromeOptions();
+options.AddArgument("--log-level=3"); //Only fatal errors displayed in the terminal
+options.AddArgument("--silent");
+
+var service = ChromeDriverService.CreateDefaultService();
+service.SuppressInitialDiagnosticInformation = true;
+service.EnableVerboseLogging = false;
+
+// Load the selenium web driver with options
+IWebDriver driver = new ChromeDriver(service, options);
 
 void Login()
 {
