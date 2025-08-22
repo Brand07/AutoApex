@@ -68,6 +68,9 @@ void DoesBadgeExist(string badgeNumber)
         if (badgeElement != null)
         {
             Console.WriteLine($"Badge {badgeNumber} exists.");
+            Console.WriteLine("Editing the current badge association.");
+            var profileLink = badgeElement.FindElement(By.XPath("//*[@id=\"tr0\"]/td[1]/a"));
+            profileLink.Click();
         }
     }
     catch (NoSuchElementException)
