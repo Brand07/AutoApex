@@ -13,7 +13,7 @@ var password = Environment.GetEnvironmentVariable("APEX_PASSWORD");
 
 
 var options = new ChromeOptions();
-options.AddArgument("--log-level=3"); //Only fatal errors displayed in the terminal
+options.AddArgument("--log-level=4"); //Only fatal errors displayed in the terminal
 options.AddArgument("--silent");
 
 var service = ChromeDriverService.CreateDefaultService();
@@ -39,7 +39,7 @@ void Login()
         passwordField.SendKeys(password);
         //Login
         passwordField.Submit();
-        goToProfileManager();
+        GoToProfileManager();
     }
     catch (Exception e)
     {
@@ -49,7 +49,7 @@ void Login()
 }
 
 //Method to navigate to the Profile Manager Page
-void goToProfileManager()
+void GoToProfileManager()
 {
     var profileManager = driver.FindElement(By.CssSelector("#logout_left > a:nth-child(1)"));
     Console.WriteLine("Navigating to the profile manager");
@@ -60,12 +60,40 @@ void goToProfileManager()
     manageUsers.Click();
 }
 
-void searchBadge(int badgeNumber)
+void DoesBadgeExist(string badgeNumber)
 {
-    goToProfileManager();
+    try
+    {
+        var badgeElement = driver.FindElement(By.XPath($"//td[contains(text(), '{badgeNumber}')]"));
+        if (badgeElement != null)
+        {
+            Console.WriteLine($"Badge {badgeNumber} exists.");
+        }
+    }
+    catch (NoSuchElementException)
+    {
+        Console.WriteLine($"Badge {badgeNumber} does not exist.");
+    }
+}
+
+void SearchBadge(string badgeNumber)
+{
     var searchBox = driver.FindElement(By.Id("searchUsersText"));
     searchBox.Click();
+    searchBox.SendKeys(badgeNumber);
+    //Click on the search button
+    var searchButton = driver.FindElement(By.CssSelector("#searchAddUser2 > button"));
+    searchButton.Click();
+    driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMilliseconds(500);
+    //Check if the badge exists
+    DoesBadgeExist(badgeNumber);
+    //Clear the search box
+    searchBox.Clear();
+    
+    
 }
+
+Login();
 
 using (var package = new ExcelPackage(new FileInfo(excelPath)))
 {
@@ -73,7 +101,7 @@ using (var package = new ExcelPackage(new FileInfo(excelPath)))
     int rowCount = worksheet.Dimension.Rows;
     int colCount = worksheet.Dimension.Columns;
     
-    //Map column names to indicies
+    //Map column names to indices
     var colMap = new Dictionary<string, int>();
     for (int col = 1; col <= colCount; col++)
     {
@@ -90,9 +118,11 @@ using (var package = new ExcelPackage(new FileInfo(excelPath)))
         string department = worksheet.Cells[row, colMap["Department"]].Text;
 
         Console.WriteLine("Searching for the badge association.");
+        SearchBadge(badgeNum.ToString());
 
     }
 }
+
 
 
 Console.ReadLine();
