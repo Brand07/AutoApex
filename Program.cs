@@ -60,6 +60,13 @@ void goToProfileManager()
     manageUsers.Click();
 }
 
+void searchBadge(int badgeNumber)
+{
+    goToProfileManager();
+    var searchBox = driver.FindElement(By.Id("searchUsersText"));
+    searchBox.Click();
+}
+
 using (var package = new ExcelPackage(new FileInfo(excelPath)))
 {
     var worksheet = package.Workbook.Worksheets[0];
@@ -82,9 +89,9 @@ using (var package = new ExcelPackage(new FileInfo(excelPath)))
         int badgeNum = int.Parse(employeeId);
         string department = worksheet.Cells[row, colMap["Department"]].Text;
 
-        Console.WriteLine($"Badge number for {firstName} is {badgeNum} ");
+        Console.WriteLine("Searching for the badge association.");
 
-}
+    }
 }
 
 
