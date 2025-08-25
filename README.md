@@ -42,6 +42,25 @@ The application uses a `.env` file to manage sensitive information and configura
 
     Replace the placeholder values with your actual Excel file path and APEX credentials.
 
+## FreshService Ticket Creation
+
+This application can automatically create tickets in FreshService for each user processed from the Excel file. Ticket creation is controlled by a configuration flag and environment variables.
+
+### Enabling/Disabling Ticket Creation
+
+- Ticket creation is controlled by the `logTickets` flag in the code. Set it to `true` to enable ticket creation, or `false` to disable it.
+- When enabled, a FreshService ticket will be created for each user processed.
+
+### Additional Environment Variables
+
+Add the following variables to your `.env` file for FreshService integration:
+
+```
+API_KEY="your_freshservice_api_key"
+DOMAIN="your_freshservice_domain"  # e.g., 'yourcompany' for yourcompany.freshservice.com
+REQUESTER_ID="your_freshservice_requester_id"  # Must be a valid FreshService user ID (as a number)
+```
+
 ## Usage
 
 To run the application, execute the following command from the project's root directory:
@@ -56,6 +75,7 @@ The application will then:
 3.  Log in with the provided credentials.
 4.  Read data from the specified Excel file.
 5.  Automate the data import process into the APEX application.
+6.  (Optional) Create a FreshService ticket for each user, if ticket logging is enabled.
 
 ## License
 
