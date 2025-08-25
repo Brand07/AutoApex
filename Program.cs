@@ -128,7 +128,39 @@ namespace AutoApexImport
 
         static void EditDepartment(string department)
         {
+            //Departments and their IDs
+            var cycleCount = driver.FindElement(By.Id("editMembershipCheck2"));
+            var materialHandling = driver.FindElement(By.Id("editMembershipCheck4"));
+            var sort = driver.FindElement(By.Id("editMembershipCheck5"));
+            var pick = driver.FindElement(By.Id("editMembershipCheck6"));
             
+            //Uncheck all of the boxes if checked
+            
+            
+            //Click on the department checkbox based on the passed department
+            switch (department)
+            {
+                case "Cycle Count":
+                    cycleCount.Click();
+                    break;
+                case "Material Handling":
+                    materialHandling.Click();
+                    break;
+                case "Sort":
+                    sort.Click();
+                    break;
+                case "Voice Pick":
+                    pick.Click();
+                    break;
+                default:
+                    Console.WriteLine($"Unknown department: {department}");
+                    break;
+            }
+            //Click the save button
+            var saveButton = driver.FindElement(By.CssSelector(
+                "body > div:nth-child(21) > div.ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix > div > button:nth-child(2)"));
+            Console.WriteLine("Clicking the save button.");
+            saveButton.Click();
         }
 
         static void EditProfile(string firstUserName, string lastUserName, string badgeNumber, string department)
