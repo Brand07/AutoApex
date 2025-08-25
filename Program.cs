@@ -166,6 +166,21 @@ namespace AutoApexImport
             Console.WriteLine("Clicking the save button.");
             saveButton.Click();
         }
+        
+        //Function to reformat the badge number 
+        static void ReformatBadgeNumber(ref string badgeNumber)
+        {
+            // If the badge number is 4 digits long, append a zero at the front
+            if (badgeNumber.Length == 4)
+            {
+                badgeNumber = "0" + badgeNumber;
+            }
+            //If the badge number is 5 digits long, do nothing
+            else if (badgeNumber.Length == 5)
+            {
+                return;
+            }
+        }
 
         static void EditProfile(string firstUserName, string lastUserName, string badgeNumber, string department)
         {
@@ -182,6 +197,7 @@ namespace AutoApexImport
             employeeIdField.SendKeys(badgeNumber);
             var badgeNumberField = driver.FindElement(By.Id("badgeNumber"));
             badgeNumberField.Clear();
+            ReformatBadgeNumber(ref badgeNumber);
             badgeNumberField.SendKeys(badgeNumber);
             //Click the "User Group Membership" option
             Console.WriteLine("Clicking the user group membership.");
