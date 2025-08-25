@@ -147,7 +147,7 @@ namespace AutoApexImport
                 case "Cycle Count":
                     cycleCount.Click();
                     break;
-                case "Material Handling":
+                case "Material Handler":
                     materialHandling.Click();
                     break;
                 case "Sort":
@@ -169,17 +169,23 @@ namespace AutoApexImport
 
         static void AddDepartment(string department)
         {
-            var cycleCount = driver.FindElement(By.Id("MembershipCheck2"));
-            var materialHandling = driver.FindElement(By.Id("MembershipCheck4"));
-            var sort = driver.FindElement(By.Id("MembershipCheck5"));
-            var pick = driver.FindElement(By.Id("MembershipCheck6"));
+            var cycleCount = driver.FindElement(By.Id("membershipCheck2"));
+            var materialHandling = driver.FindElement(By.Id("membershipCheck4"));
+            var sort = driver.FindElement(By.Id("membershipCheck5"));
+            var pick = driver.FindElement(By.Id("membershipCheck6"));
+            
+            //Uncheck all the boxes if checked
+            if (cycleCount.Selected) cycleCount.Click();
+            if (materialHandling.Selected) materialHandling.Click();
+            if (sort.Selected) sort.Click();
+            if (pick.Selected) pick.Click();
             
             switch (department)
             {
                 case "Cycle Count":
                     cycleCount.Click();
                     break;
-                case "Material Handling":
+                case "Material Handler":
                     materialHandling.Click();
                     break;
                 case "Sort":
@@ -193,17 +199,26 @@ namespace AutoApexImport
                     break;
             }
             //Click the add button
-            var addButton = driver.FindElement(By.CssSelector(
-                "body > div:nth-child(21) > div.ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix > div > button:nth-child(2)"));
+            Thread.Sleep(2000);
+            var addButton = driver.FindElement(By.XPath(
+                "/html/body/div[22]/div[3]/div/button[2]"));
             addButton.Click();
+            Console.WriteLine("Add Button Clicked.");
             
             //Pause for 1 second
+            Thread.Sleep(1000);
+            
+            //Click on the submit button to officially add the user
+            var submitButton = driver.FindElement(By.CssSelector("#apexTblDisplay > tbody > tr > td > button"));
+            submitButton.Click();
             Thread.Sleep(1000);
             
             //Click 'OK' on the proceeding dialoge box.
             var confirmButton = driver.FindElement(By.CssSelector(
                 "body > div:nth-child(4) > div.ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix > div > button"));
             confirmButton.Click();
+
+            Console.WriteLine("User has been added.");
         }
         
         //Function to reformat the badge number 
@@ -272,6 +287,7 @@ namespace AutoApexImport
 
             var userMembership = driver.FindElement(By.LinkText("User Group Membership:"));
             userMembership.Click();
+            AddDepartment(department);
             //TODO - Make a function to add (not edit) the group permissions. 
             // Elements between editing vs adding have different IDs.
 
@@ -294,6 +310,7 @@ namespace AutoApexImport
             {
                 Console.WriteLine($"Badge {badgeNumber} does not exist - adding user to the system.");
                 //TODO Call method to create a new profile
+                AddUser(firstName, lastName, badgeNumber, departrment);
                 
             }
         }
