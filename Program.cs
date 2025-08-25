@@ -2,10 +2,8 @@
 using OpenQA.Selenium.Chrome;
 using OfficeOpenXml;
 //Libraries used for the FreshService API
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 
@@ -156,10 +154,11 @@ namespace AutoApexImport
                         string response =
                             await ticketCreator.CreateTicketAsync(subject, description, service, requesterId);
                         Console.WriteLine($"Ticket created for {firstName} {lastName}");
+                        Console.WriteLine(response);
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Failed to create ticket for {firstName} {lastName}.");
+                        Console.WriteLine($"Failed to create ticket for {firstName} {lastName}.\n{ex.Message}");
                         throw;
                     }
                 }
@@ -427,6 +426,5 @@ namespace AutoApexImport
             //Clear the search box
             searchBox.Clear();
         }
-        
     }
 }
