@@ -72,8 +72,6 @@ namespace AutoApexImport
 
         static async Task Main()
         {
-            // Force TLS 1.2 for all outgoing HTTPS requests
-            System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
             //Set the license for the library
             ExcelPackage.License.SetNonCommercialOrganization("My Noncommercial organization");
             //Load the env file
@@ -296,7 +294,7 @@ namespace AutoApexImport
             submitButton.Click();
             Thread.Sleep(1000);
             
-            //Click 'OK' on the proceeding dialoge box.
+            //Click 'OK' on the proceeding dialogue box.
             var confirmButton = _driver.FindElement(By.CssSelector(
                 "body > div:nth-child(4) > div.ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix > div > button"));
             confirmButton.Click();
@@ -381,7 +379,7 @@ namespace AutoApexImport
 
         }
 
-        static void DoesBadgeExist(string firstName, string lastName, string badgeNumber, string departrment)
+        static void DoesBadgeExist(string firstName, string lastName, string badgeNumber, string department)
         {
             if (_driver == null) throw new InvalidOperationException("Driver not initialized.");
             try
@@ -393,13 +391,13 @@ namespace AutoApexImport
                 var profileLink = badgeElement.FindElement(By.XPath("//*[@id=\"tr0\"]/td[1]/a"));
                 profileLink.Click();
                 
-                EditProfile(firstName, lastName, badgeNumber, departrment);
+                EditProfile(firstName, lastName, badgeNumber, department);
             }
             catch (NoSuchElementException)
             {
                 Console.WriteLine($"Badge {badgeNumber} does not exist - adding user to the system.");
                 
-                AddUser(firstName, lastName, badgeNumber, departrment);
+                AddUser(firstName, lastName, badgeNumber, department);
                 
             }
         }
