@@ -94,11 +94,15 @@ namespace AutoApexImport
                 //Go to the Apex login page
                 driver.Navigate().GoToUrl("https://apexconnectandgo.com");
                 driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMilliseconds(500);
+                
+                
                 //Find the username and password fields and enter the credentials
                 var usernameField = driver.FindElement(By.Id("user.login_id"));
                 usernameField.SendKeys(userName);
+                
                 var passwordField = driver.FindElement(By.Id("user.password"));
                 passwordField.SendKeys(password);
+                
                 //Login
                 passwordField.Submit();
                 GoToProfileManager();
@@ -243,20 +247,25 @@ namespace AutoApexImport
             var firstNameField = driver.FindElement(By.Id("edit_user.first_name"));
             firstNameField.Clear();
             firstNameField.SendKeys(firstUserName);
+            
             var lastNameField = driver.FindElement(By.Id("edit_user.last_name"));
             lastNameField.Clear();
             lastNameField.SendKeys(lastUserName);
+            
             var employeeIdField = driver.FindElement(By.Id("employeeId"));
             employeeIdField.Clear();
             employeeIdField.SendKeys(badgeNumber);
+            
             var badgeNumberField = driver.FindElement(By.Id("badgeNumber"));
             badgeNumberField.Clear();
             ReformatBadgeNumber(ref badgeNumber);
             badgeNumberField.SendKeys(badgeNumber);
+            
             //Click the "User Group Membership" option
             Console.WriteLine("Clicking the user group membership.");
             var groupMembership = driver.FindElement(By.LinkText("User Group Membership:"));
             groupMembership.Click();
+            
             //Edit the department
             EditDepartment(department);
             //Click on the save button
@@ -301,15 +310,16 @@ namespace AutoApexImport
                 var badgeElement = driver.FindElement(By.XPath($"//td[contains(text(), '{badgeNumber}')]"));
                 Console.WriteLine($"Badge {badgeNumber} exists.");
                 Console.WriteLine("Editing the current badge association.");
+                
                 var profileLink = badgeElement.FindElement(By.XPath("//*[@id=\"tr0\"]/td[1]/a"));
                 profileLink.Click();
-                //TODO Call method to edit the profile
+                
                 EditProfile(firstName, lastName, badgeNumber, departrment);
             }
             catch (NoSuchElementException)
             {
                 Console.WriteLine($"Badge {badgeNumber} does not exist - adding user to the system.");
-                //TODO Call method to create a new profile
+                
                 AddUser(firstName, lastName, badgeNumber, departrment);
                 
             }
@@ -324,6 +334,7 @@ namespace AutoApexImport
             //Click on the search button
             var searchButton = driver.FindElement(By.CssSelector("#searchAddUser2 > button"));
             searchButton.Click();
+            
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMilliseconds(500);
             //Check if the badge exists
             DoesBadgeExist(firstName, lastName, badgeNumber, department);
