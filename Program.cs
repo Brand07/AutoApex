@@ -124,99 +124,11 @@ namespace AutoApexImport
             Console.WriteLine("Clicking on 'Manage Users'");
             manageUsers.Click();
         }
-
-        static void WaitForOverlayToDisappear(IWebDriver driver, WebDriverWait wait)
-        {
-            wait.Until(drv =>
-            {
-                var overlays = drv.FindElements(By.CssSelector(".ui-widget-overlay.ui-front"));
-                return overlays.Count == 0 || overlays.All(o => !o.Displayed);
-            });
-        }
+        
 
         static void EditDepartment(string department)
         {
-            if (driver == null) throw new InvalidOperationException("Driver not initialized.");
-            Console.WriteLine("Editing the department");
-            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-            try
-            {
-                var departmentLink = wait.Until(drv => {
-                    var el = drv.FindElement(By.LinkText("User Group Membership:"));
-                    return (el.Displayed && el.Enabled) ? el : null;
-                });
-                departmentLink.Click();
-
-                WaitForOverlayToDisappear(driver, wait);
-
-                // Wait for checkboxes to be present
-                wait.Until(drv => drv.FindElements(By.CssSelector("input[type='checkbox']")).Count > 0);
-                var allDepartments = driver.FindElements(By.CssSelector("input[type='checkbox']"));
-                foreach (var dept in allDepartments)
-                {
-                    if (dept.Selected && dept.Displayed && dept.Enabled)
-                    {
-                        WaitForOverlayToDisappear(driver, wait);
-                        dept.Click();
-                        WaitForOverlayToDisappear(driver, wait);
-                    }
-                }
-                //Select the department based on the input
-                switch (department)
-                {
-                    case "Cycle Count":
-                        var cycleCount = wait.Until(drv => {
-                            var el = drv.FindElement(By.CssSelector("#editMembershipCheck2"));
-                            return (el.Displayed && el.Enabled) ? el : null;
-                        });
-                        if (!cycleCount.Selected && cycleCount.Displayed && cycleCount.Enabled)
-                        {
-                            WaitForOverlayToDisappear(driver, wait);
-                            cycleCount.Click();
-                            WaitForOverlayToDisappear(driver, wait);
-                        }
-                        break;
-                    case "Material Handling":
-                        var materialHandling = wait.Until(drv => {
-                            var el = drv.FindElement(By.CssSelector("#editMembershipCheck4"));
-                            return (el.Displayed && el.Enabled) ? el : null;
-                        });
-                        if (!materialHandling.Selected && materialHandling.Displayed && materialHandling.Enabled)
-                        {
-                            WaitForOverlayToDisappear(driver, wait);
-                            materialHandling.Click();
-                            WaitForOverlayToDisappear(driver, wait);
-                        }
-                        break;
-                    case "Voice Pick":
-                        var voicePick = wait.Until(drv => {
-                            var el = drv.FindElement(By.CssSelector("#editMembershipCheck6"));
-                            return (el.Displayed && el.Enabled) ? el : null;
-                        });
-                        if (!voicePick.Selected && voicePick.Displayed && voicePick.Enabled)
-                        {
-                            WaitForOverlayToDisappear(driver, wait);
-                            voicePick.Click();
-                            WaitForOverlayToDisappear(driver, wait);
-                        }
-                        break;
-                    default:
-                        Console.WriteLine($"Department '{department}' not recognized. No changes made.");
-                        break;
-                }
-            }
-            catch (WebDriverTimeoutException ex)
-            {
-                Console.WriteLine($"Timeout waiting for element: {ex.Message}");
-            }
-            catch (ElementNotInteractableException ex)
-            {
-                Console.WriteLine($"Element not interactable: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Unexpected error: {ex.Message}");
-            }
+            
         }
 
         static void EditProfile(string firstUserName, string lastUserName, string badgeNumber, string department)
@@ -235,6 +147,10 @@ namespace AutoApexImport
             var badgeNumberField = driver.FindElement(By.Id("badgeNumber"));
             badgeNumberField.Clear();
             badgeNumberField.SendKeys(badgeNumber);
+            //Click the "User Group Membership" option
+            Console.WriteLine("Clicking the user group membership.");
+            var groupMembership = driver.FindElement(By.LinkText("User Group Membership:"));
+            groupMembership.Click();
             //Edit the department
             EditDepartment(department);
             //Click on the save button
