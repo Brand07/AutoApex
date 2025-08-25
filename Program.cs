@@ -166,6 +166,11 @@ namespace AutoApexImport
             Console.WriteLine("Clicking the save button.");
             saveButton.Click();
         }
+
+        static void AddDepartment(string department)
+        {
+            
+        }
         
         //Function to reformat the badge number 
         static void ReformatBadgeNumber(ref string badgeNumber)
@@ -210,6 +215,34 @@ namespace AutoApexImport
             saveButton.Click();
         }
 
+        static void AddUser(string firstName, string lastName, string badgeNumber, string department)
+        {
+            //Click on the "Add a User" button
+            var addUserButton = driver.FindElement(By.LinkText("Add a User"));
+            addUserButton.Click();
+            Console.WriteLine($"Adding user {firstName} {lastName} with badge number {badgeNumber}. ");
+
+            var firstNameField = driver.FindElement(By.Id("user.first_name"));
+            firstNameField.SendKeys(firstName);
+
+            var lastNameField = driver.FindElement(By.Id("user.last_name"));
+            lastNameField.SendKeys(lastName);
+
+            var employeeIdField = driver.FindElement(By.Id("addPassport.employee_id"));
+            employeeIdField.SendKeys(badgeNumber);
+
+            var badgeNumberField = driver.FindElement(By.Id("addPassport.user_card_key"));
+            //Reformat the badge number and send it
+            ReformatBadgeNumber(ref badgeNumber);
+            badgeNumberField.SendKeys(badgeNumber);
+
+            var userMembership = driver.FindElement(By.LinkText("User Group Membership:"));
+            userMembership.Click();
+            //TODO - Make a function to add (not edit) the group permissions. 
+            // Elements between editing vs adding have different IDs.
+
+        }
+
         static void DoesBadgeExist(string firstName, string lastName, string badgeNumber, string departrment)
         {
             if (driver == null) throw new InvalidOperationException("Driver not initialized.");
@@ -225,8 +258,9 @@ namespace AutoApexImport
             }
             catch (NoSuchElementException)
             {
-                Console.WriteLine($"Badge {badgeNumber} does not exist.");
+                Console.WriteLine($"Badge {badgeNumber} does not exist - adding user to the system.");
                 //TODO Call method to create a new profile
+                
             }
         }
 
