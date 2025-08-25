@@ -1,18 +1,16 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OfficeOpenXml;
-using OpenQA.Selenium.Support.UI;
-using System;
-using System.Collections.Generic;
+
 
 namespace AutoApexImport
 {
     class Program
     {
-        static IWebDriver? driver;
-        static string? excelPath;
-        static string? userName;
-        static string? password;
+        static IWebDriver? _driver;
+        static string? _excelPath;
+        static string? _userName;
+        static string? _password;
 
         static void Main()
         {
@@ -21,12 +19,12 @@ namespace AutoApexImport
             //Load the env file
             DotNetEnv.Env.Load("C:\\repos\\AutoApex\\AutoApexImport\\.env");
 
-            excelPath = Environment.GetEnvironmentVariable("EXCEL_PATH");
-            userName = Environment.GetEnvironmentVariable("APEX_USERNAME");
-            password = Environment.GetEnvironmentVariable("APEX_PASSWORD");
+            _excelPath = Environment.GetEnvironmentVariable("EXCEL_PATH");
+            _userName = Environment.GetEnvironmentVariable("APEX_USERNAME");
+            _password = Environment.GetEnvironmentVariable("APEX_PASSWORD");
 
-            if (string.IsNullOrWhiteSpace(excelPath) || string.IsNullOrWhiteSpace(userName) ||
-                string.IsNullOrWhiteSpace(password))
+            if (string.IsNullOrWhiteSpace(_excelPath) || string.IsNullOrWhiteSpace(_userName) ||
+                string.IsNullOrWhiteSpace(_password))
             {
                 Console.WriteLine("One or more required environment variables are missing.");
                 return;
@@ -51,11 +49,11 @@ namespace AutoApexImport
             
 
             // Load the selenium web driver with options
-            driver = new ChromeDriver(service, options);
+            _driver = new ChromeDriver(service, options);
 
             Login();
 
-            using (var package = new ExcelPackage(new FileInfo(excelPath)))
+            using (var package = new ExcelPackage(new FileInfo(_excelPath)))
             {
                 var worksheet = package.Workbook.Worksheets[0];
                 int rowCount = worksheet.Dimension.Rows;
@@ -85,23 +83,23 @@ namespace AutoApexImport
 
         static void Login()
         {
-            if (driver == null || userName == null || password == null)
+            if (_driver == null || _userName == null || _password == null)
                 throw new InvalidOperationException("Driver or credentials not initialized.");
             try
             {
                 //Maximize the window
-                driver.Manage().Window.Maximize();
+                _driver.Manage().Window.Maximize();
                 //Go to the Apex login page
-                driver.Navigate().GoToUrl("https://apexconnectandgo.com");
-                driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMilliseconds(500);
+                _driver.Navigate().GoToUrl("https://apexconnectandgo.com");
+                _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMilliseconds(500);
                 
                 
                 //Find the username and password fields and enter the credentials
-                var usernameField = driver.FindElement(By.Id("user.login_id"));
-                usernameField.SendKeys(userName);
+                var usernameField = _driver.FindElement(By.Id("user.login_id"));
+                usernameField.SendKeys(_userName);
                 
-                var passwordField = driver.FindElement(By.Id("user.password"));
-                passwordField.SendKeys(password);
+                var passwordField = _driver.FindElement(By.Id("user.password"));
+                passwordField.SendKeys(_password);
                 
                 //Login
                 passwordField.Submit();
@@ -116,13 +114,13 @@ namespace AutoApexImport
 
         static void GoToProfileManager()
         {
-            if (driver == null) throw new InvalidOperationException("Driver not initialized.");
-            var profileManager = driver.FindElement(By.CssSelector("#logout_left > a:nth-child(1)"));
+            if (_driver == null) throw new InvalidOperationException("Driver not initialized.");
+            var profileManager = _driver.FindElement(By.CssSelector("#logout_left > a:nth-child(1)"));
             Console.WriteLine("Navigating to the profile manager");
             profileManager.Click();
 
             var manageUsers =
-                driver.FindElement(
+                _driver.FindElement(
                     By.CssSelector(
                         "#pageBody > div.drawers-wrapper > ul > li:nth-child(1) > ul > li:nth-child(1) > a"));
             Console.WriteLine("Clicking on 'Manage Users'");
@@ -133,10 +131,10 @@ namespace AutoApexImport
         static void EditDepartment(string department)
         {
             //Departments and their IDs
-            var cycleCount = driver.FindElement(By.Id("editMembershipCheck2"));
-            var materialHandling = driver.FindElement(By.Id("editMembershipCheck4"));
-            var sort = driver.FindElement(By.Id("editMembershipCheck5"));
-            var pick = driver.FindElement(By.Id("editMembershipCheck6"));
+            var cycleCount = _driver.FindElement(By.Id("editMembershipCheck2"));
+            var materialHandling = _driver.FindElement(By.Id("editMembershipCheck4"));
+            var sort = _driver.FindElement(By.Id("editMembershipCheck5"));
+            var pick = _driver.FindElement(By.Id("editMembershipCheck6"));
             
             //Uncheck all the boxes if checked
             if (cycleCount.Selected) cycleCount.Click();
@@ -165,7 +163,7 @@ namespace AutoApexImport
                     break;
             }
             //Click the save button
-            var saveButton = driver.FindElement(By.CssSelector(
+            var saveButton = _driver.FindElement(By.CssSelector(
                 "body > div:nth-child(21) > div.ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix > div > button:nth-child(2)"));
             Console.WriteLine("Clicking the save button.");
             saveButton.Click();
@@ -173,10 +171,10 @@ namespace AutoApexImport
 
         static void AddDepartment(string department)
         {
-            var cycleCount = driver.FindElement(By.Id("membershipCheck2"));
-            var materialHandling = driver.FindElement(By.Id("membershipCheck4"));
-            var sort = driver.FindElement(By.Id("membershipCheck5"));
-            var pick = driver.FindElement(By.Id("membershipCheck6"));
+            var cycleCount = _driver.FindElement(By.Id("membershipCheck2"));
+            var materialHandling = _driver.FindElement(By.Id("membershipCheck4"));
+            var sort = _driver.FindElement(By.Id("membershipCheck5"));
+            var pick = _driver.FindElement(By.Id("membershipCheck6"));
             
             //Uncheck all the boxes if checked
             if (cycleCount.Selected) cycleCount.Click();
@@ -204,7 +202,7 @@ namespace AutoApexImport
             }
             //Click the add button
             Thread.Sleep(2000);
-            var addButton = driver.FindElement(By.XPath(
+            var addButton = _driver.FindElement(By.XPath(
                 "/html/body/div[22]/div[3]/div/button[2]"));
             addButton.Click();
             Console.WriteLine("Add Button Clicked.");
@@ -213,12 +211,12 @@ namespace AutoApexImport
             Thread.Sleep(1000);
             
             //Click on the submit button to officially add the user
-            var submitButton = driver.FindElement(By.CssSelector("#apexTblDisplay > tbody > tr > td > button"));
+            var submitButton = _driver.FindElement(By.CssSelector("#apexTblDisplay > tbody > tr > td > button"));
             submitButton.Click();
             Thread.Sleep(1000);
             
             //Click 'OK' on the proceeding dialoge box.
-            var confirmButton = driver.FindElement(By.CssSelector(
+            var confirmButton = _driver.FindElement(By.CssSelector(
                 "body > div:nth-child(4) > div.ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix > div > button"));
             confirmButton.Click();
 
@@ -242,59 +240,59 @@ namespace AutoApexImport
 
         static void EditProfile(string firstUserName, string lastUserName, string badgeNumber, string department)
         {
-            if (driver == null) throw new InvalidOperationException("Driver not initialized.");
+            if (_driver == null) throw new InvalidOperationException("Driver not initialized.");
             Console.WriteLine("Editing the profile");
-            var firstNameField = driver.FindElement(By.Id("edit_user.first_name"));
+            var firstNameField = _driver.FindElement(By.Id("edit_user.first_name"));
             firstNameField.Clear();
             firstNameField.SendKeys(firstUserName);
             
-            var lastNameField = driver.FindElement(By.Id("edit_user.last_name"));
+            var lastNameField = _driver.FindElement(By.Id("edit_user.last_name"));
             lastNameField.Clear();
             lastNameField.SendKeys(lastUserName);
             
-            var employeeIdField = driver.FindElement(By.Id("employeeId"));
+            var employeeIdField = _driver.FindElement(By.Id("employeeId"));
             employeeIdField.Clear();
             employeeIdField.SendKeys(badgeNumber);
             
-            var badgeNumberField = driver.FindElement(By.Id("badgeNumber"));
+            var badgeNumberField = _driver.FindElement(By.Id("badgeNumber"));
             badgeNumberField.Clear();
             ReformatBadgeNumber(ref badgeNumber);
             badgeNumberField.SendKeys(badgeNumber);
             
             //Click the "User Group Membership" option
             Console.WriteLine("Clicking the user group membership.");
-            var groupMembership = driver.FindElement(By.LinkText("User Group Membership:"));
+            var groupMembership = _driver.FindElement(By.LinkText("User Group Membership:"));
             groupMembership.Click();
             
             //Edit the department
             EditDepartment(department);
             //Click on the save button
-            var saveButton = driver.FindElement(By.Id("updateUser"));
+            var saveButton = _driver.FindElement(By.Id("updateUser"));
             saveButton.Click();
         }
 
         static void AddUser(string firstName, string lastName, string badgeNumber, string department)
         {
             //Click on the "Add a User" button
-            var addUserButton = driver.FindElement(By.LinkText("Add a User"));
+            var addUserButton = _driver.FindElement(By.LinkText("Add a User"));
             addUserButton.Click();
             Console.WriteLine($"Adding user {firstName} {lastName} with badge number {badgeNumber}. ");
 
-            var firstNameField = driver.FindElement(By.Id("user.first_name"));
+            var firstNameField = _driver.FindElement(By.Id("user.first_name"));
             firstNameField.SendKeys(firstName);
 
-            var lastNameField = driver.FindElement(By.Id("user.last_name"));
+            var lastNameField = _driver.FindElement(By.Id("user.last_name"));
             lastNameField.SendKeys(lastName);
 
-            var employeeIdField = driver.FindElement(By.Id("addPassport.employee_id"));
+            var employeeIdField = _driver.FindElement(By.Id("addPassport.employee_id"));
             employeeIdField.SendKeys(badgeNumber);
 
-            var badgeNumberField = driver.FindElement(By.Id("addPassport.user_card_key"));
+            var badgeNumberField = _driver.FindElement(By.Id("addPassport.user_card_key"));
             //Reformat the badge number and send it
             ReformatBadgeNumber(ref badgeNumber);
             badgeNumberField.SendKeys(badgeNumber);
 
-            var userMembership = driver.FindElement(By.LinkText("User Group Membership:"));
+            var userMembership = _driver.FindElement(By.LinkText("User Group Membership:"));
             userMembership.Click();
             AddDepartment(department);
             //TODO - Make a function to add (not edit) the group permissions. 
@@ -304,10 +302,10 @@ namespace AutoApexImport
 
         static void DoesBadgeExist(string firstName, string lastName, string badgeNumber, string departrment)
         {
-            if (driver == null) throw new InvalidOperationException("Driver not initialized.");
+            if (_driver == null) throw new InvalidOperationException("Driver not initialized.");
             try
             {
-                var badgeElement = driver.FindElement(By.XPath($"//td[contains(text(), '{badgeNumber}')]"));
+                var badgeElement = _driver.FindElement(By.XPath($"//td[contains(text(), '{badgeNumber}')]"));
                 Console.WriteLine($"Badge {badgeNumber} exists.");
                 Console.WriteLine("Editing the current badge association.");
                 
@@ -327,27 +325,20 @@ namespace AutoApexImport
 
         static void SearchBadge(string firstName, string lastName, string badgeNumber, string department)
         {
-            if (driver == null) throw new InvalidOperationException("Driver not initialized.");
-            var searchBox = driver.FindElement(By.Id("searchUsersText"));
+            if (_driver == null) throw new InvalidOperationException("Driver not initialized.");
+            var searchBox = _driver.FindElement(By.Id("searchUsersText"));
             searchBox.Click();
             searchBox.SendKeys(badgeNumber);
             //Click on the search button
-            var searchButton = driver.FindElement(By.CssSelector("#searchAddUser2 > button"));
+            var searchButton = _driver.FindElement(By.CssSelector("#searchAddUser2 > button"));
             searchButton.Click();
             
-            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMilliseconds(500);
+            _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromMilliseconds(500);
             //Check if the badge exists
             DoesBadgeExist(firstName, lastName, badgeNumber, department);
             //Clear the search box
             searchBox.Clear();
         }
-
-        // Helper to highlight an element using JavaScript
-        static void HighlightElement(IWebElement element)
-        {
-            if (driver == null) return;
-            var js = (IJavaScriptExecutor)driver;
-            js.ExecuteScript("arguments[0].style.border='3px solid red'", element);
-        }
+        
     }
 }
