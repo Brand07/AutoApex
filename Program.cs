@@ -134,7 +134,11 @@ namespace AutoApexImport
             var sort = driver.FindElement(By.Id("editMembershipCheck5"));
             var pick = driver.FindElement(By.Id("editMembershipCheck6"));
             
-            //Uncheck all of the boxes if checked
+            //Uncheck all the boxes if checked
+            if (cycleCount.Selected) cycleCount.Click();
+            if (materialHandling.Selected) materialHandling.Click();
+            if (sort.Selected) sort.Click();
+            if (pick.Selected) pick.Click();
             
             
             //Click on the department checkbox based on the passed department
