@@ -55,3 +55,9 @@ The application will then:
 3.  Log in with the provided credentials.
 4.  Read data from the specified Excel file.
 5.  Automate the data import process into the APEX application.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+
+**Note:** This project uses EPPlus, which is licensed under Polyform Noncommercial 1.0.0. If you intend to use this project for commercial purposes, you must obtain a commercial license for EPPlus. See the [EPPlus License](https://epplussoftware.com/developers/licenseexception) for more information.
