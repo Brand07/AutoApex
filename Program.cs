@@ -14,11 +14,14 @@ namespace AutoApexImport
     public class FreshServiceTicketCreator
     {
         private readonly HttpClient _httpClient;
+        private readonly bool _logTickets;
 
-        public FreshServiceTicketCreator()
+        public FreshServiceTicketCreator(bool logTickets)
         {
+            _logTickets = logTickets;
             var apiKey = Environment.GetEnvironmentVariable("API_KEY");
             var domain = Environment.GetEnvironmentVariable("DOMAIN");
+            var requesterIdStr = Environment.GetEnvironmentVariable("REQUESTER_ID");
             
             _httpClient = new HttpClient();
             var byteArray = Encoding.ASCII.GetBytes($"{apiKey}:X");
@@ -26,6 +29,38 @@ namespace AutoApexImport
                 new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
             _httpClient.BaseAddress = new Uri($"https://{domain}.freshservice.com/api/v2/");
 
+        }
+
+        public async Task<string> CreateTicketAsync(string subject, string description, string service,
+            long requesterId)
+        {
+            if (!_logTickets)
+            {
+                return "Ticket logging is disabled.";
+            }
+            var ticketData = new
+            {
+                subject = subject,
+                description = description,
+                priority = 2,
+                status = 2, // 2 = Open
+                requester_id = requesterId,
+                custom_fields = new
+                {
+                    please_select_the_service = service
+                }
+            };
+
+            var json = JsonConvert.SerializeObject(ticketData);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync("tickets", content);
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"FreshService API error: {response.StatusCode}\n{errorBody}");
+            }
+            return await response.Content.ReadAsStringAsync();
         }
     }
     
@@ -37,10 +72,12 @@ namespace AutoApexImport
         static string? _password;
         
         //Enable FreshService ticket creation?
-        private bool enableTickets = false; //Change to true to input a ticket for each user edited/added.
+        //private bool enableTickets = false; //Change to true to input a ticket for each user edited/added.
 
-        static void Main()
+        static async Task Main()
         {
+            // Force TLS 1.2 for all outgoing HTTPS requests
+            System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
             //Set the license for the library
             ExcelPackage.License.SetNonCommercialOrganization("My Noncommercial organization");
             //Load the env file
@@ -68,15 +105,15 @@ namespace AutoApexImport
             options.AddUserProfilePreference("autofill.address_enabled", false);
             options.AddUserProfilePreference("autofill.credit_card_enabled", false);
 
-            var service = ChromeDriverService.CreateDefaultService();
-            service.SuppressInitialDiagnosticInformation = true;
-            service.EnableVerboseLogging = false;
-            service.HideCommandPromptWindow = true;
-            service.LogPath = "NUL"; // Suppress logs on Windows
+            var webService = ChromeDriverService.CreateDefaultService();
+            webService.SuppressInitialDiagnosticInformation = true;
+            webService.EnableVerboseLogging = false;
+            webService.HideCommandPromptWindow = true;
+            webService.LogPath = "NUL"; // Suppress logs on Windows
             
 
             // Load the selenium web driver with options
-            _driver = new ChromeDriver(service, options);
+            _driver = new ChromeDriver(webService, options);
 
             Login();
 
@@ -94,6 +131,10 @@ namespace AutoApexImport
                     colMap[colName] = col;
                 }
 
+                var ticketCreator = new FreshServiceTicketCreator(false);//Change to 'true' to enable ticket creation
+
+                
+
                 for (int row = 2; row <= rowCount; row++)
                 {
                     string firstName = worksheet.Cells[row, colMap["First Name"]].Text;
@@ -104,7 +145,26 @@ namespace AutoApexImport
 
                     Console.WriteLine("Searching for the badge association.");
                     SearchBadge(firstName, lastName, badgeNum.ToString(), department);
+
+                    try
+                    {
+                        string subject = $"{firstName} {lastName} needs access to {department} devices.";
+                        string description = $"User's badge number is {badgeNum}";
+                        string service = "Apex";
+                        long requesterId = long.Parse(Environment.GetEnvironmentVariable("REQUESTER_ID") ?? "0");
+
+                        string response =
+                            await ticketCreator.CreateTicketAsync(subject, description, service, requesterId);
+                        Console.WriteLine($"Ticket created for {firstName} {lastName}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Failed to create ticket for {firstName} {lastName}.");
+                        throw;
+                    }
                 }
+                
+                
             }
         }
 
@@ -194,6 +254,7 @@ namespace AutoApexImport
                 "body > div:nth-child(21) > div.ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix > div > button:nth-child(2)"));
             Console.WriteLine("Clicking the save button.");
             saveButton.Click();
+            
         }
 
         static void AddDepartment(string department)
