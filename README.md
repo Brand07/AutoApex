@@ -1,5 +1,6 @@
 # AutoApex
 My Apex Connect &amp; Go program rewritten in C#
+The original version written in Python can be found here - https://github.com/Brand07/Python--Apex-Connect-And-Go
 
 # AutoApexImport
 
