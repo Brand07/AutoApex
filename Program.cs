@@ -19,7 +19,7 @@ namespace AutoApexImport
             _logTickets = logTickets;
             var apiKey = Environment.GetEnvironmentVariable("API_KEY");
             var domain = Environment.GetEnvironmentVariable("DOMAIN");
-            var requesterIdStr = Environment.GetEnvironmentVariable("REQUESTER_ID");
+            
             
             _httpClient = new HttpClient();
             var byteArray = Encoding.ASCII.GetBytes($"{apiKey}:X");
@@ -38,8 +38,6 @@ namespace AutoApexImport
             }
             var ticketData = new
             {
-                subject = subject,
-                description = description,
                 priority = 2,
                 status = 2, // 2 = Open
                 requester_id = requesterId,
@@ -115,55 +113,51 @@ namespace AutoApexImport
 
             Login();
 
-            using (var package = new ExcelPackage(new FileInfo(_excelPath)))
+            using var package = new ExcelPackage(new FileInfo(_excelPath));
+            var worksheet = package.Workbook.Worksheets[0];
+            int rowCount = worksheet.Dimension.Rows;
+            int colCount = worksheet.Dimension.Columns;
+
+            //Map column names to indices
+            var colMap = new Dictionary<string, int>();
+            for (int col = 1; col <= colCount; col++)
             {
-                var worksheet = package.Workbook.Worksheets[0];
-                int rowCount = worksheet.Dimension.Rows;
-                int colCount = worksheet.Dimension.Columns;
+                var colName = worksheet.Cells[1, col].Text.Trim();
+                colMap[colName] = col;
+            }
 
-                //Map column names to indices
-                var colMap = new Dictionary<string, int>();
-                for (int col = 1; col <= colCount; col++)
+            var ticketCreator = new FreshServiceTicketCreator(false);//Change to 'true' to enable ticket creation
+
+                
+
+            for (int row = 2; row <= rowCount; row++)
+            {
+                string firstName = worksheet.Cells[row, colMap["First Name"]].Text;
+                string lastName = worksheet.Cells[row, colMap["Last Name"]].Text;
+                string employeeId = worksheet.Cells[row, colMap["Badge Number"]].Text;
+                int badgeNum = int.Parse(employeeId);
+                string department = worksheet.Cells[row, colMap["Department"]].Text;
+
+                Console.WriteLine("Searching for the badge association.");
+                SearchBadge(firstName, lastName, badgeNum.ToString(), department);
+
+                try
                 {
-                    var colName = worksheet.Cells[1, col].Text.Trim();
-                    colMap[colName] = col;
+                    string subject = $"{firstName} {lastName} needs access to {department} devices.";
+                    string description = $"User's badge number is {badgeNum}";
+                    string service = "Apex";
+                    long requesterId = long.Parse(Environment.GetEnvironmentVariable("REQUESTER_ID") ?? "0");
+
+                    string response =
+                        await ticketCreator.CreateTicketAsync(subject, description, service, requesterId);
+                    Console.WriteLine($"Ticket created for {firstName} {lastName}");
+                    Console.WriteLine(response);
                 }
-
-                var ticketCreator = new FreshServiceTicketCreator(false);//Change to 'true' to enable ticket creation
-
-                
-
-                for (int row = 2; row <= rowCount; row++)
+                catch (Exception ex)
                 {
-                    string firstName = worksheet.Cells[row, colMap["First Name"]].Text;
-                    string lastName = worksheet.Cells[row, colMap["Last Name"]].Text;
-                    string employeeId = worksheet.Cells[row, colMap["Badge Number"]].Text;
-                    int badgeNum = int.Parse(employeeId);
-                    string department = worksheet.Cells[row, colMap["Department"]].Text;
-
-                    Console.WriteLine("Searching for the badge association.");
-                    SearchBadge(firstName, lastName, badgeNum.ToString(), department);
-
-                    try
-                    {
-                        string subject = $"{firstName} {lastName} needs access to {department} devices.";
-                        string description = $"User's badge number is {badgeNum}";
-                        string service = "Apex";
-                        long requesterId = long.Parse(Environment.GetEnvironmentVariable("REQUESTER_ID") ?? "0");
-
-                        string response =
-                            await ticketCreator.CreateTicketAsync(subject, description, service, requesterId);
-                        Console.WriteLine($"Ticket created for {firstName} {lastName}");
-                        Console.WriteLine(response);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Failed to create ticket for {firstName} {lastName}.\n{ex.Message}");
-                        throw;
-                    }
+                    Console.WriteLine($"Failed to create ticket for {firstName} {lastName}.\n{ex.Message}");
+                    throw;
                 }
-                
-                
             }
         }
 
@@ -321,7 +315,7 @@ namespace AutoApexImport
             //If the badge number is 5 digits long, do nothing
             else if (badgeNumber.Length == 5)
             {
-                return;
+                Console.WriteLine("Badge number is already 5 digits long.");
             }
         }
 
