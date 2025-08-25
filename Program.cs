@@ -1,16 +1,43 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OfficeOpenXml;
+//Libraries used for the FreshService API
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 
 namespace AutoApexImport
 {
+    public class FreshServiceTicketCreator
+    {
+        private readonly HttpClient _httpClient;
+
+        public FreshServiceTicketCreator()
+        {
+            var apiKey = Environment.GetEnvironmentVariable("API_KEY");
+            var domain = Environment.GetEnvironmentVariable("DOMAIN");
+            
+            _httpClient = new HttpClient();
+            var byteArray = Encoding.ASCII.GetBytes($"{apiKey}:X");
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+            _httpClient.BaseAddress = new Uri($"https://{domain}.freshservice.com/api/v2/");
+
+        }
+    }
+    
     class Program
     {
         static IWebDriver? _driver;
         static string? _excelPath;
         static string? _userName;
         static string? _password;
+        
+        //Enable FreshService ticket creation?
+        private bool enableTickets = false; //Change to true to input a ticket for each user edited/added.
 
         static void Main()
         {
