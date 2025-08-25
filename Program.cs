@@ -169,7 +169,41 @@ namespace AutoApexImport
 
         static void AddDepartment(string department)
         {
+            var cycleCount = driver.FindElement(By.Id("MembershipCheck2"));
+            var materialHandling = driver.FindElement(By.Id("MembershipCheck4"));
+            var sort = driver.FindElement(By.Id("MembershipCheck5"));
+            var pick = driver.FindElement(By.Id("MembershipCheck6"));
             
+            switch (department)
+            {
+                case "Cycle Count":
+                    cycleCount.Click();
+                    break;
+                case "Material Handling":
+                    materialHandling.Click();
+                    break;
+                case "Sort":
+                    sort.Click();
+                    break;
+                case "Voice Pick":
+                    pick.Click();
+                    break;
+                default:
+                    Console.WriteLine($"Unknown department: {department}");
+                    break;
+            }
+            //Click the add button
+            var addButton = driver.FindElement(By.CssSelector(
+                "body > div:nth-child(21) > div.ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix > div > button:nth-child(2)"));
+            addButton.Click();
+            
+            //Pause for 1 second
+            Thread.Sleep(1000);
+            
+            //Click 'OK' on the proceeding dialoge box.
+            var confirmButton = driver.FindElement(By.CssSelector(
+                "body > div:nth-child(4) > div.ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix > div > button"));
+            confirmButton.Click();
         }
         
         //Function to reformat the badge number 
