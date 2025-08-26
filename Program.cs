@@ -38,6 +38,7 @@ namespace AutoApexImport
             }
             var ticketData = new
             {
+                subject = subject,
                 priority = 2,
                 status = 2, // 2 = Open
                 requester_id = requesterId,
@@ -124,7 +125,7 @@ namespace AutoApexImport
                 colMap[colName] = col;
             }
 
-            var ticketCreator = new FreshServiceTicketCreator(false);//Change to 'true' to enable ticket creation
+            var ticketCreator = new FreshServiceTicketCreator(true);//Change to 'true' to enable ticket creation
 
                 
 
@@ -281,9 +282,31 @@ namespace AutoApexImport
             }
             //Click the add button
             Thread.Sleep(2000);
-            var addButton = _driver.FindElement(By.XPath(
-                "/html/body/div[22]/div[3]/div/button[2]"));
-            addButton.Click();
+            try
+            {
+                var addButton = _driver.FindElement(By.XPath(
+                    "/html/body/div[22]/div[3]/div/button[2]"));
+                addButton.Click();
+            }
+            catch (Exception e1)
+            {
+                Console.WriteLine(e1);
+                Console.WriteLine("Could not find the Add button using XPath, trying CSS Selector.");
+                try
+                {
+                    var addButton = _driver.FindElement(By.CssSelector(
+                        "body > div:nth-child(22) > div.ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix > div > button:nth-child(2)"));
+                    addButton.Click();
+                    Console.WriteLine("Had to use the Selector.");
+                }
+                catch (Exception e2)
+                {
+                    Console.WriteLine(e2);
+                    Console.WriteLine("Could not find the Add button using CSS Selector either.");
+                    // Optionally, handle failure or throw
+                }
+            }
+            
             Console.WriteLine("Add Button Clicked.");
             
             //Pause for 1 second
