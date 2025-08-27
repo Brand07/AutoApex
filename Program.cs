@@ -7,15 +7,20 @@ using System.Text;
 using Newtonsoft.Json;
 
 
+
+
 namespace AutoApexImport
 {
+    
     public class FreshServiceTicketCreator
     {
+        
         private readonly HttpClient _httpClient;
         private readonly bool _logTickets;
 
         public FreshServiceTicketCreator(bool logTickets)
         {
+            
             _logTickets = logTickets;
             var apiKey = Environment.GetEnvironmentVariable("API_KEY");
             var domain = Environment.GetEnvironmentVariable("DOMAIN");
@@ -73,6 +78,7 @@ namespace AutoApexImport
 
         static async Task Main()
         {
+            var ticketCreator = new FreshServiceTicketCreator(true);//Change to 'true' to enable ticket creation
             //Set the license for the library
             ExcelPackage.License.SetNonCommercialOrganization("My Noncommercial organization");
             //Load the env file
@@ -125,10 +131,8 @@ namespace AutoApexImport
                 colMap[colName] = col;
             }
 
-            var ticketCreator = new FreshServiceTicketCreator(true);//Change to 'true' to enable ticket creation
-
-                
-
+            
+            
             for (int row = 2; row <= rowCount; row++)
             {
                 string firstName = worksheet.Cells[row, colMap["First Name"]].Text;
