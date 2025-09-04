@@ -38,6 +38,9 @@ The application uses a `.env` file to manage sensitive information and configura
     EXCEL_PATH="path\\to\\your\\excel\\file.xlsx"
     APEX_USERNAME="your_apex_username"
     APEX_PASSWORD="your_apex_password"
+    API_KEY="your_freshservice_api_key"
+    DOMAIN="your_domain"
+    REQUESTER_ID="your_freshservice_requester_id"
     ```
 
     Replace the placeholder values with your actual Excel file path and APEX credentials.
